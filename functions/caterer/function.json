@@ -1,0 +1,6 @@
+{
+  "description": "Go serverless (serving GET API)",
+  "runtime": "golang",
+  "memory": 128,
+  "timeout": 10
+}

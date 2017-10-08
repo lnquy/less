@@ -1,0 +1,5 @@
+{
+  "name": "less",
+  "description": "Demo Go serverless on AWS Lambda",
+  "role": "arn:aws:iam::575580434592:role/lambda_full"
+}

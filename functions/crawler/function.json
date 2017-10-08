@@ -1,0 +1,6 @@
+{
+  "description": "Go serverless (Github trending crawler)",
+  "runtime": "golang",
+  "memory": 128,
+  "timeout": 30
+}
