@@ -36,7 +36,7 @@
     export default {
         data() {
             return {
-                date_picker: new Date().getTime(),
+                date_picker: new Date().toISOString().slice(0, 10),
                 repos: [],
             }
         },
@@ -62,8 +62,8 @@
             },
             getUTCDate() {
                 let nd = new Date(this.date_picker);
-                return nd.toISOString().substring(0, 10);
-            }
+                return nd.getFullYear() + "-" + ("0" + (nd.getMonth() + 1)).slice(-2) + "-" + ("0" + nd.getDate()).slice(-2)
+            },
         },
     }
 </script>
