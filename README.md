@@ -1,5 +1,5 @@
 # less
-Simple Go serverless website on Amazone Web Services (AWS).  
+Simple Go serverless website on Amazone Web Services (AWS). Demo: [https://6epko5iya8.execute-api.ap-southeast-1.amazonaws.com/dev](https://6epko5iya8.execute-api.ap-southeast-1.amazonaws.com/dev).  
 
 Website's frontend is written in `VueJS`, which stored on a public `AWS S3` bucket.  
 There're two simple `AWS Lambdas` written in Go (deployed via `apex` with NodeJS shim runtime):
