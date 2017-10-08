@@ -10,12 +10,12 @@ All other parts must be setup and configure manually via AWS Console (`ap-southe
 
 - S3:
   - Create a S3 static web hosting.
-  - Upload all `frontend` files to the root of S3.
+  - Upload all `frontend/dist` files to the root of S3 with public access.
   - Take the HTTP URL to the index file.
 - API gateway:
   - Create a root GET API `/` proxying to the HTTP URL of index file on S3.
   - Create a POST API `/api/v1/trending` which called the `less_caterer` lambda.
-- Cloudwatch:
+- CloudWatch:
   - Create a `24_hours` scheduled job.
   - Apply that job as the trigger of the `less_crawler` lambda.
 - DynamoDB:
