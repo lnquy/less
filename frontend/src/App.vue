@@ -6,19 +6,23 @@
             <a href="https://github.com/lnquy/less" style="position: absolute; right: 20px; top: 20px; color: #bfcbd9; text-decoration: none" target="_blank">Github</a>
             <div class="centered-menu-block">
                 <el-date-picker v-model="date_picker" type="date" placeholder="Pick a date"></el-date-picker>
-                <el-button type="primary" @click="getTrendingRepos()">Go!</el-button>
+                <el-button type="primary" @click="getTrendingRepos()" :loading="loading">Go!</el-button>
             </div>
         </el-menu>
         <el-row>
             <el-col :span="16" class="repos-col">
                 <div v-if="repos.length != 0" >
-                    <h3>Github Trending</h3>
+                    <h2>Github Trending</h2>
                     <div class="repos">
                         <repository v-for="repo in repos" :repo="repo" :key="repo.name"></repository>
                     </div>
                 </div>
                 <div v-else style="padding: 30px">
                     No data
+                    <div><br>
+                        <h4>Serverless website on Amazon Web Services</h4>
+                        <img src="./assets/less-arch.jpg" style="width: 70%">
+                    </div>
                 </div>
             </el-col>
         </el-row>
@@ -36,6 +40,7 @@
     export default {
         data() {
             return {
+                loading: false,
                 date_picker: new Date().toISOString().slice(0, 10),
                 repos: [],
             }
@@ -45,14 +50,17 @@
         },
         methods: {
             getTrendingRepos() {
+                this.loading = true;
                 this.$http.post(global.getCatererUrl(), "{\"date\": \"" + this.getUTCDate() + "\"}").then(resp => {
                     if (resp.body != null && resp.body !== "") {
                         this.repos = JSON.parse(resp.body);
                     } else {
                         this.repos = [];
                     }
+                    this.loading = false;
                 }, err => {
                     this.repos = [];
+                    this.loading = false;
                     this.$notify.error({
                         title: 'Error',
                         message: "Failed to get trending repositories!",
@@ -86,10 +94,15 @@
         text-align: center;
         padding: 20px;
     }
+
+    .el-menu {
+        border-radius: 0;
+    }
 </style>
 
 <style scoped>
     .centered-menu-block{
+        position: absolute;
         padding-top: 11px;
         width: 100%;
         text-align: center;
