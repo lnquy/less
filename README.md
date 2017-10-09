@@ -1,11 +1,11 @@
 # less
-Simple Go serverless website on Amazone Web Services (AWS).   
+Simple Go serverless website on Amazon Web Services (AWS).   
 Demo: [https://6epko5iya8.execute-api.ap-southeast-1.amazonaws.com/dev](https://6epko5iya8.execute-api.ap-southeast-1.amazonaws.com/dev).  
 
 Website's frontend is written in `VueJS`, which stored on a public `AWS S3` bucket.  
 There're two simple `AWS Lambdas` written in Go (deployed via `apex` with NodeJS shim runtime):
 
-- `less_crawler`: Craws [Github trending](https://github.com/trending) repositories, parses and persists data to `DynamoDB`. This function is triggered by a `CloudWatch` cron job (each 24 hours).
+- `less_crawler`: Crawls [Github trending](https://github.com/trending) repositories, parses and persists data to `DynamoDB`. This function is triggered by a `CloudWatch` cron job (each 24 hours).
 - `less_caterer`: Receives HTTP request from client and lookup on `DynamoDB` for trending repositories by day.
 
 `API Gateway` serves two APIs, one to GET the `index.html` page on S3 bucket (forward/proxy request to the URL of `index.html` file on S3). The other allows client to lookup Gihub trending repositories by day (which calling the `less_caterer` lambda).
