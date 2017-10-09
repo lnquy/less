@@ -1,25 +1,25 @@
 # less
-Simple Go serverless website on Amazone Web Services (AWS).   
+Simple Go serverless website on Amazon Web Services (AWS).   
 Demo: [https://6epko5iya8.execute-api.ap-southeast-1.amazonaws.com/dev](https://6epko5iya8.execute-api.ap-southeast-1.amazonaws.com/dev).  
 
 Website's frontend is written in `VueJS`, which stored on a public `AWS S3` bucket.  
 There're two simple `AWS Lambdas` written in Go (deployed via `apex` with NodeJS shim runtime):
 
-- `less_crawler`: Craws [Github trending](https://github.com/trending) repositories, parses and persists data to `DynamoDB`. This function is triggered by a `CloudWatch` cron job (each 24 hours).
+- `less_crawler`: Crawls [Github trending](https://github.com/trending) repositories, parses and persists data to `DynamoDB`. This function is triggered by a `CloudWatch` cron job.
 - `less_caterer`: Receives HTTP request from client and lookup on `DynamoDB` for trending repositories by day.
 
 `API Gateway` serves two APIs, one to GET the `index.html` page on S3 bucket (forward/proxy request to the URL of `index.html` file on S3). The other allows client to lookup Gihub trending repositories by day (which calling the `less_caterer` lambda).
 
 ## Architecture
 
-This repo (less) contains the code for `Lambda` and `S3` part in the image below.  
+This repo contains the code for `Lambda` and `S3` parts in the image below.  
 ![Architecture](https://github.com/lnquy/less/blob/master/images/less-arch.jpg)
 
 ## Deploy on AWS
 
 #### Local development
 
-You have to install [Go SDK](https://golang.org/dl/), [glide](https://github.com/Masterminds/glide), [AWS CLI](http://docs.aws.amazon.com/cli/latest/userguide/installing.html), [apex](http://apex.run/) and [configure the AWS credential](http://apex.run/#aws-credentials) to able to deploy your functions on AWS Lambda.  
+You have to install [Go SDK](https://golang.org/dl/), [glide](https://github.com/Masterminds/glide), [AWS CLI](http://docs.aws.amazon.com/cli/latest/userguide/installing.html), [apex](http://apex.run/) and [configure the AWS credential](http://apex.run/#aws-credentials) to deploy your functions on AWS Lambda.  
 
 - Clone the repository to your local `$GOPATH` and install Go dependencies:
 
@@ -35,7 +35,7 @@ You have to install [Go SDK](https://golang.org/dl/), [glide](https://github.com
 
 - Create a role for the Lambdas on AWS IAM which have access to `DynamoDB` service.
 
-- Change the role to match your IAM Lambda role: [projection.json#L4](https://github.com/lnquy/less/blob/e84fa6f1d12d83e3ff7f0bd92fbc96e044a122f7/project.json#L4).
+- Change the role to match your IAM Lambda role: [project.json#L4](https://github.com/lnquy/less/blob/e84fa6f1d12d83e3ff7f0bd92fbc96e044a122f7/project.json#L4).
 
 - Deploy to AWS:
 
