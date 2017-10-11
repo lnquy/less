@@ -47,7 +47,9 @@ You have to install [Go SDK](https://golang.org/dl/), [glide](https://github.com
 
 - Create a public S3 bucket for static web hosting, get the URL of the bucket.
 
-- Change the `publicPath` to your S3 bucket URL: [webpack.config.js#L5](https://github.com/lnquy/less/blob/e84fa6f1d12d83e3ff7f0bd92fbc96e044a122f7/frontend/webpack.config.js#L5)
+- Change the `publicPath` to your S3 bucket URL: [webpack.config.js#L6](https://github.com/lnquy/less/blob/e84fa6f1d12d83e3ff7f0bd92fbc96e044a122f7/frontend/webpack.config.js#L6)
+
+- Change the `GetCaterer` to your `POST /api/v1/trending/` API URL: [main.js#L22](https://github.com/lnquy/less/blob/e84fa6f1d12d83e3ff7f0bd92fbc96e044a122f7/frontend/src/main.js#L22)
 
 - Build frontend:
 

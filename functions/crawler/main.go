@@ -9,25 +9,27 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/prometheus/common/log"
 	"net/http"
 	"strings"
 	"time"
-	"github.com/prometheus/common/log"
 )
 
 var (
-	awsRegion   = "ap-southeast-1"
-	dynamoTable = "less-crawler-dev"
+	awsRegion   = "ap-southeast-1"   // AWS region to deploy Lambdas and other services
+	dynamoTable = "less-crawler-dev" // DynamoDB table name for crawler
 	ghTrending  = "https://github.com/trending"
 )
 
 type (
+	// Crawler is the representation of a web crawler =)).
 	Crawler struct {
-		client *http.Client
-		db     *dynamodb.DynamoDB
-		repos  []*Repo
+		client *http.Client       // HTTP client that do crawl job
+		db     *dynamodb.DynamoDB // DynamoDB client
+		repos  []*Repo            // List of crawled Github trending repositories.
 	}
 
+	// Repo represents a Github trending repository.
 	Repo struct {
 		Date        string
 		Name        string
@@ -40,6 +42,8 @@ type (
 	}
 )
 
+// Handle implemented from apex.Handler which will be called when the lambda started up.
+// Crawls raw Github trending page then parses repos info and saves to DynamoDB database.
 func (c *Crawler) Handle(raw json.RawMessage, ctx *apex.Context) (interface{}, error) {
 	if err := c.CrawlGithubTrending(); err != nil {
 		return err.Error(), err
@@ -50,13 +54,14 @@ func (c *Crawler) Handle(raw json.RawMessage, ctx *apex.Context) (interface{}, e
 	return "OK", nil
 }
 
+// CrawlGithubTrending crawls raw Github trending page and parses repos info.
 func (c *Crawler) CrawlGithubTrending() error {
 	doc, err := goquery.NewDocument(ghTrending)
 	if err != nil {
 		return err
 	}
 
-	// Repositories
+	// Parse repositories information
 	doc.Find("div.explore-content ol.repo-list li").Each(func(i int, s *goquery.Selection) {
 		repo := &Repo{
 			Date: time.Now().Format("2006-01-02"),
@@ -86,6 +91,7 @@ func (c *Crawler) CrawlGithubTrending() error {
 	return nil
 }
 
+// PersistData saves parsed repos info to DynamoDB database.
 func (c *Crawler) PersistData() (*dynamodb.BatchWriteItemOutput, error) {
 	items := make([]*dynamodb.WriteRequest, 0)
 	counter := 0
@@ -100,7 +106,7 @@ func (c *Crawler) PersistData() (*dynamodb.BatchWriteItemOutput, error) {
 
 		putReq := &dynamodb.PutRequest{
 			Item: map[string]*dynamodb.AttributeValue{
-				"date":        {S: aws.String(r.Date)},
+				"date":        {S: aws.String(r.Date)}, // Primary partition key
 				"name":        {S: aws.String(r.Name)},
 				"url":         {S: aws.String(r.Url)},
 				"description": {S: aws.String(r.Description)},
@@ -108,7 +114,7 @@ func (c *Crawler) PersistData() (*dynamodb.BatchWriteItemOutput, error) {
 				"stars":       {S: aws.String(r.Stars)},
 				"forks":       {S: aws.String(r.Forks)},
 				"today_stars": {S: aws.String(r.TodayStars)},
-				"sort":        {N: aws.String(fmt.Sprintf("%d", counter))},
+				"sort":        {N: aws.String(fmt.Sprintf("%d", counter))}, // Primary sort key
 			},
 		}
 		items = append(items, &dynamodb.WriteRequest{
@@ -126,15 +132,17 @@ func (c *Crawler) PersistData() (*dynamodb.BatchWriteItemOutput, error) {
 }
 
 func main() {
+	// New DynamoDB client
 	sess, err := session.NewSession()
 	if err != nil {
 		log.Fatal(err)
 	}
 	db := dynamodb.New(sess, &aws.Config{
-		Region: aws.String(awsRegion),
+		Region:                 aws.String(awsRegion),
 		DisableParamValidation: aws.Bool(true),
 	})
 
+	// Lambda handler
 	apex.Handle(&Crawler{
 		client: &http.Client{
 			Transport: &http.Transport{

@@ -2,6 +2,7 @@ const resolve = require('path').resolve;
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const url = require('url');
+// TODO: Change publicPath to your AWS S3 bucket URL
 const publicPath = 'https://s3-ap-southeast-1.amazonaws.com/lnquy-less-go/';
 
 module.exports = (options = {}) => ({

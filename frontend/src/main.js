@@ -18,6 +18,7 @@ new Vue({
 
 export const global = {
     getCatererUrl() {
+        // TODO: Place the URL to your POST /trending API here
         return "https://6epko5iya8.execute-api.ap-southeast-1.amazonaws.com/dev/api/v1/trending";
     }
 };

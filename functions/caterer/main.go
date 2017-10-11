@@ -8,20 +8,22 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"log"
-	"time"
 	"sort"
+	"time"
 )
 
 var (
-	awsRegion   = "ap-southeast-1"
-	dynamoTable = "less-crawler-dev"
+	awsRegion   = "ap-southeast-1"   // AWS region to deploy Lambdas and other services
+	dynamoTable = "less-crawler-dev" // DynamoDB table name to read from
 )
 
 type (
+	// Caterer serves the POST /trending API which lookup from DynamoDB for trending repositories by day.
 	Caterer struct {
-		db *dynamodb.DynamoDB
+		db *dynamodb.DynamoDB // DynamoDB client
 	}
 
+	// Repo represents a Github trending repository.
 	Repo struct {
 		Date        string `json:"date"`
 		Name        string `json:"name"`
@@ -35,7 +37,11 @@ type (
 	}
 )
 
+// Handle implemented from apex.Handler which will be called when the lambda started up.
+// Parse request to get the day value, it not specify, current server time will be used.
+// Lookup from database for trending repository by day.
 func (c *Caterer) Handle(raw json.RawMessage, ctx *apex.Context) (interface{}, error) {
+	// Parse request body
 	reqData := &struct {
 		Date string `json:"date" omitempty`
 	}{}
@@ -43,6 +49,7 @@ func (c *Caterer) Handle(raw json.RawMessage, ctx *apex.Context) (interface{}, e
 		reqData.Date = time.Now().Format("2006-01-02")
 	}
 
+	// Build lookup query then query
 	query := &dynamodb.QueryInput{
 		TableName: aws.String(dynamoTable),
 		KeyConditions: map[string]*dynamodb.Condition{
@@ -59,8 +66,8 @@ func (c *Caterer) Handle(raw json.RawMessage, ctx *apex.Context) (interface{}, e
 		return err.Error(), err
 	}
 
+	// Map data returned from DynamoDB to actual Repo instances
 	res := make([]*Repo, 0)
-
 	for _, item := range resp.Items {
 		repo := &Repo{}
 		err := dynamodbattribute.UnmarshalMap(item, repo)
@@ -70,7 +77,7 @@ func (c *Caterer) Handle(raw json.RawMessage, ctx *apex.Context) (interface{}, e
 		res = append(res, repo)
 	}
 
-	sort.Sort(BySortIndex(res))
+	sort.Sort(BySortIndex(res)) // Re-sort by sort index (optional)
 	b, err := json.Marshal(res)
 	if err != nil {
 		return err.Error(), err
@@ -79,6 +86,7 @@ func (c *Caterer) Handle(raw json.RawMessage, ctx *apex.Context) (interface{}, e
 }
 
 func main() {
+	// New DynamoDB client
 	sess, err := session.NewSession()
 	if err != nil {
 		log.Fatal(err)
@@ -87,11 +95,14 @@ func main() {
 		Region:                 aws.String(awsRegion),
 		DisableParamValidation: aws.Bool(true),
 	})
+
+	// Lambda handler
 	apex.Handle(&Caterer{
 		db: db,
 	})
 }
 
+// BySortIndex implements sort interface which allows to sort a list of Repos by sort index.
 type BySortIndex []*Repo
 
 func (r BySortIndex) Len() int           { return len(r) }
