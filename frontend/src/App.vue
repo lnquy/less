@@ -3,7 +3,7 @@
         <el-menu theme="dark" class="el-menu-demo" mode="horizontal">
             <el-menu-item index="1"><span style="font-family: 'Satisfy', cursive; font-size: 30px;">Less</span>
             </el-menu-item>
-            <a href="https://github.com/lnquy/less" style="position: absolute; right: 20px; top: 20px; color: #bfcbd9; text-decoration: none" target="_blank">Github</a>
+            <a href="https://github.com/lnquy/less" class="menu-right" target="_blank">Github</a>
             <div class="centered-menu-block">
                 <el-date-picker v-model="date_picker" type="date" placeholder="Pick a date"></el-date-picker>
                 <el-button type="primary" @click="getTrendingRepos()" :loading="loading">Go!</el-button>
@@ -95,8 +95,10 @@
         padding: 20px;
     }
 
-    .el-menu {
+    .el-menu,
+    .el-menu .el-menu-item {
         border-radius: 0;
+        z-index: 3;
     }
 </style>
 
@@ -106,6 +108,19 @@
         padding-top: 11px;
         width: 100%;
         text-align: center;
+        z-index: 1;
+    }
+
+    .menu-right {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        color: #bfcbd9;
+        text-decoration: none;
+        z-index: 2;
+    }
+    .menu-right:hover {
+        color: #009DFB;
     }
 
     .repos-col {
